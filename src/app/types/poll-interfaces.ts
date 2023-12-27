@@ -45,6 +45,7 @@ export interface Ranking {
   participant: Participant;
   participantRankings: string[];
   pollID: string;
+  poll?: Poll;
 }
 
 export interface Poll {
@@ -56,6 +57,7 @@ export interface Poll {
   participants?: Participant[] | undefined;
   nominations?: NominationData[] | undefined;
   rankings?: Ranking[] | undefined;
+  results?: Result[] | undefined;
 }
 
 export interface FormattedNominations {

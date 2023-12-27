@@ -1,3 +1,4 @@
+import { FormattedParticipants, Poll } from "@/app/types/poll-interfaces";
 import { StateType } from "@/redux/features/poll-slice";
 
 type TokenPayload = {
@@ -35,4 +36,17 @@ export const colorizeText = (text: string): JSX.Element => {
   return <>{elements}</>;
 };
 
-
+export const formatParticipants = (
+  poll: Poll | undefined
+): FormattedParticipants | undefined => {
+  console.log("format participants", poll?.participants);
+  const formattedParticipants = poll?.participants?.reduce(
+    (result, participant) => {
+      result[participant.id] = participant;
+      return result;
+    },
+    {} as FormattedParticipants
+  );
+  console.log("formatted participants", formattedParticipants);
+  return formattedParticipants;
+};

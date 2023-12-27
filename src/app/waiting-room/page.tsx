@@ -4,7 +4,7 @@ import Loader from "@/components/ui/Loader";
 import { stopLoading } from "@/redux/features/poll-slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useSocketWithHandlers } from "@/utils/socket-io";
-import { colorizeText } from "@/utils/util";
+import { colorizeText, formatParticipants } from "@/utils/util";
 import React, { useEffect, useState } from "react";
 import { MdContentCopy, MdPeopleOutline } from "react-icons/md";
 import { BsPencilSquare } from "react-icons/bs";
@@ -50,9 +50,9 @@ const WaitingRoom = () => {
   const [participantToRemove, setParticipantToRemove] = useState("");
   const [showLeavePollConfirmation, setShowLeavePollConfirmation] =
     useState(false);
-  const [participantsObj, setParticipantsObj] = useState<FormattedParticipants>(
-    {}
-  );
+  const [participantsObj, setParticipantsObj] = useState<
+    FormattedParticipants | undefined
+  >({});
   const hasVoted = useSelector(selectHasVoted);
 
   const confirmRemoveParticipant = (id: string) => {
@@ -82,24 +82,28 @@ const WaitingRoom = () => {
     return pollParticipant;
   };
 
-  const formatParticipants = (poll: Poll | undefined): void => {
-    console.log("format participants", poll);
-    const formattedParticipants = poll?.participants?.reduce(
-      (result, participant) => {
-        result[participant.id] = participant;
-        return result;
-      },
-      {} as FormattedParticipants
-    );
-    if (formattedParticipants) {
-      setParticipantsObj(formattedParticipants);
-    }
-    console.log("formattedParticipants output", formattedParticipants);
-  };
+  // const formatParticipants = (poll: Poll | undefined): void => {
+  //   console.log("format participants", poll);
+  //   const formattedParticipants = poll?.participants?.reduce(
+  //     (result, participant) => {
+  //       result[participant.id] = participant;
+  //       return result;
+  //     },
+  //     {} as FormattedParticipants
+  //   );
+  //   if (formattedParticipants) {
+  //     setParticipantsObj(formattedParticipants);
+  //   }
+  //   console.log("formattedParticipants output", formattedParticipants);
+  // };
 
   useEffect(() => {
     console.log("Waiting room useEffect");
-    formatParticipants(state.poll);
+    // formatParticipants(state.poll);
+    if (formatParticipants(state.poll)) {
+      setParticipantsObj(formatParticipants(state.poll));
+    }
+
     if (socketWithHandlers && !socketWithHandlers?.connected) {
       socketWithHandlers.connect();
     }
@@ -108,7 +112,12 @@ const WaitingRoom = () => {
     const myID = state.me?.id;
     // const participants = participantsObj as FormattedParticipants;
 
-    if (myID && socketWithHandlers?.connected && !participantsObj[myID]) {
+    if (
+      myID &&
+      socketWithHandlers?.connected &&
+      participantsObj &&
+      !participantsObj[myID]
+    ) {
       console.log("attempts to reset poll");
       resetPoll();
     }
@@ -214,7 +223,9 @@ const WaitingRoom = () => {
                   ) : (
                     <div className="my-2 italic">
                       (
-                      {state.poll && participantsObj[state.poll.adminID] ? (
+                      {state.poll &&
+                      participantsObj &&
+                      participantsObj[state.poll.adminID] ? (
                         <span className="font-semibold">
                           Waiting for Admin{" "}
                           {participantsObj[state.poll.adminID].name}

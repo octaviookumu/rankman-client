@@ -1,8 +1,8 @@
 import React from "react";
-import { Results } from "../../app/types/poll-interfaces";
+import { Result } from "../../app/types/poll-interfaces";
 
 type ResultCard = {
-  results: Readonly<Results>;
+  results: Readonly<Result[]>;
 };
 
 const ResultCard: React.FC<ResultCard> = ({ results }) => {
