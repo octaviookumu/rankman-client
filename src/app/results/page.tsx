@@ -28,7 +28,7 @@ const Results = () => {
   //   };
 
   useEffect(() => {
-    console.log('state.poll', state.poll)
+    console.log("state.poll", state.poll);
     if (formatParticipants(state.poll)) {
       setParticipantsObj(formatParticipants(state.poll));
     }
@@ -70,14 +70,12 @@ const Results = () => {
           </div>
           <div className="flex flex-col justify-center">
             {state.isAdmin && !state.poll?.results?.length && (
-              <>
-                <button
-                  className="box btn-orange my-2"
-                  onClick={() => setIsConfirmationOpen(true)}
-                >
-                  Finish Poll
-                </button>
-              </>
+              <button
+                className="box btn-orange my-2"
+                onClick={() => setIsConfirmationOpen(true)}
+              >
+                Finish Poll
+              </button>
             )}
             {!state.isAdmin && !state.poll?.results?.length && (
               <div className="my-2 italic">

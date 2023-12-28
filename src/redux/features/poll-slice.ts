@@ -79,7 +79,7 @@ export const PollSlice = createSlice({
           ...state.value,
           // isLoading: true,
           poll: action.payload,
-          // accessToken: state.value.accessToken,
+          // accessToken: action.payload.accessToken,
         },
       };
     },

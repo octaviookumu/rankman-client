@@ -62,7 +62,9 @@ export const getSocket = () => {
 };
 
 export const disconnectSocket = () => {
+  console.log('disconnectSocket')
   if (socket) {
+    console.log('disconnected')
     socket.disconnect();
     socket = undefined;
     dispatch = undefined;

@@ -1,7 +1,7 @@
 import { PollState, reset } from "@/redux/features/poll-slice";
 import { AppDispatch } from "@/redux/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Socket } from "socket.io-client";
 import { initializeSocket, disconnectSocket } from "./socketManager";
@@ -12,6 +12,7 @@ export const useSocketWithHandlers = (pollState: PollState) => {
   const dispatch = useDispatch<AppDispatch>();
   const socketRef = useRef<Socket | undefined>(undefined);
   const router = useRouter();
+  const [accessToken, setAccessToken] = useState<string | null>("");
 
   const nominate = (text: string): void => {
     socketRef.current?.emit("nominate", { text });
@@ -53,18 +54,23 @@ export const useSocketWithHandlers = (pollState: PollState) => {
   };
 
   useEffect(() => {
-    if (pollState.accessToken) {
-      socketRef.current = initializeSocket(pollState.accessToken, dispatch);
+    setAccessToken(localStorage.getItem("accessToken"));
+    console.log("useSocketWithHandlers useeffect", pollState, accessToken);
+    if (accessToken) {
+      console.log("accessToken exists");
+      socketRef.current = initializeSocket(accessToken, dispatch);
     } else {
+      console.log("accessToken doesnt exist");
       disconnectSocket();
       return;
     }
 
-    return () => {
-      socketRef.current = undefined;
-      disconnectSocket();
-    };
-  }, [dispatch, pollState.accessToken]);
+    // return () => {
+    //   console.log("cleanup");
+    //   socketRef.current = undefined;
+    //   disconnectSocket();
+    // };
+  }, [accessToken]);
 
   return {
     socketWithHandlers: socketRef.current,

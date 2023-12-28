@@ -1,10 +1,10 @@
 "use client";
 import AllToasts from "@/components/ui/AllToasts";
 import Loader from "@/components/ui/Loader";
-import { stopLoading } from "@/redux/features/poll-slice";
+import { startLoading, stopLoading } from "@/redux/features/poll-slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useSocketWithHandlers } from "@/utils/socket-io";
-import { colorizeText, formatParticipants } from "@/utils/util";
+import { colorizeText } from "@/utils/util";
 import React, { useEffect, useState } from "react";
 import { MdContentCopy, MdPeopleOutline } from "react-icons/md";
 import { BsPencilSquare } from "react-icons/bs";
@@ -82,41 +82,63 @@ const WaitingRoom = () => {
     return pollParticipant;
   };
 
-  // const formatParticipants = (poll: Poll | undefined): void => {
-  //   console.log("format participants", poll);
-  //   const formattedParticipants = poll?.participants?.reduce(
-  //     (result, participant) => {
-  //       result[participant.id] = participant;
-  //       return result;
-  //     },
-  //     {} as FormattedParticipants
-  //   );
-  //   if (formattedParticipants) {
-  //     setParticipantsObj(formattedParticipants);
-  //   }
-  //   console.log("formattedParticipants output", formattedParticipants);
-  // };
+  const formatParticipants = (
+    poll: Poll | undefined
+  ): FormattedParticipants | undefined => {
+    console.log("format participants", poll?.participants);
+    const formattedParticipants = poll?.participants?.reduce(
+      (result, participant) => {
+        result[participant.id] = participant;
+        return result;
+      },
+      {} as FormattedParticipants
+    );
+    console.log("formatted participants", formattedParticipants);
+    return formattedParticipants;
+    // if (formattedParticipants) {
+    //   setParticipantsObj(formattedParticipants);
+    // }
+  };
 
   useEffect(() => {
+    // dispatch(startLoading());
     console.log("Waiting room useEffect");
-    // formatParticipants(state.poll);
-    if (formatParticipants(state.poll)) {
-      setParticipantsObj(formatParticipants(state.poll));
-    }
+    console.log("state at waiting room", state.poll);
+
+    console.log("is dis connected", socketWithHandlers?.connected);
+
+    if (!state.poll?.participants) return;
 
     if (socketWithHandlers && !socketWithHandlers?.connected) {
+      console.log("connects");
       socketWithHandlers.connect();
+    } else if (socketWithHandlers?.connected) {
+      console.log("state.poll after connection", state.poll);
     }
+
+    // formatParticipants(state.poll);
+
+    console.log("state participants", state.poll?.participants);
+    const formattedParticipants = formatParticipants(state.poll);
+    setParticipantsObj(formattedParticipants)
+    console.log(
+      "participants logic",
+      socketWithHandlers?.connected,
+      state.poll?.participants,
+      state.me?.id,
+      formattedParticipants
+    );
 
     // Resets page when a participant is deleted
     const myID = state.me?.id;
     // const participants = participantsObj as FormattedParticipants;
+    
 
     if (
       myID &&
       socketWithHandlers?.connected &&
-      participantsObj &&
-      !participantsObj[myID]
+      formattedParticipants &&
+      !formattedParticipants[myID]
     ) {
       console.log("attempts to reset poll");
       resetPoll();
@@ -129,8 +151,8 @@ const WaitingRoom = () => {
     dispatch(stopLoading());
   }, [
     state.poll?.participants,
-    // state.me?.id,
-    // state.poll?.hasStarted,
+    state.me?.id,
+    state.poll?.hasStarted,
     hasVoted,
   ]);
 

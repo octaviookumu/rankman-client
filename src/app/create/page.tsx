@@ -54,11 +54,15 @@ const Create = () => {
     if (error && error.statusCode === 400) {
       console.log("400 error", error);
       setApiError("Name and poll topic are both required!");
+      dispatch(stopLoading());
     } else if (error && error.statusCode !== 400) {
       setApiError(error.messages[0]);
+      dispatch(stopLoading());
     } else {
+      console.log("data", data);
       dispatch(initializePoll(data.poll));
       dispatch(setPollAccessToken(data.accessToken));
+      console.log("state with participants", state.poll);
       router.push("/waiting-room");
     }
 
